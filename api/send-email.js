@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch("https://mohamedashifm.app.n8n.cloud/webhook/send-email", {
+    const response = await fetch("https://mohamedashifm.app.n8n.cloud/webhook/send-mail", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
