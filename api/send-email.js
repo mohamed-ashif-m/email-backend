@@ -1,23 +1,24 @@
-export default async function handler(req, res) {
-  // Allow requests from any origin (or restrict to your frontend)
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  // Handle preflight requests (OPTIONS)
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  // Your existing email sending logic here
-  const { email } = req.body;
-
+const sendEmail = async (email) => {
   try {
-    // [🟢 Replace with your email sending logic]
-    console.log("Sending email to:", email);
+    const response = await fetch("https://mohamedashifm.app.n8n.cloud/webhook/send-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
 
-    res.status(200).json({ message: "Email sent successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Email failed", error: err.message });
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error("Failed to send: " + errText);
+    }
+
+    const result = await response.json(); // optional
+    console.log("📧 Email Response:", result);
+
+    alert("✅ Email sent successfully!");
+  } catch (error) {
+    console.error("❌ Error sending email:", error);
+    alert("❌ Failed to send email.");
   }
-}
+};
