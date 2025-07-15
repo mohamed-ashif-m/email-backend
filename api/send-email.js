@@ -1,29 +1,28 @@
-// /api/send-email.js
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === "POST") {
+    try {
+      const { email } = req.body;
 
-  const { email } = req.body;
+      const response = await fetch("https://mohamedashifm.app.n8n.cloud/webhook/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
-  try {
-    const response = await fetch('https://mohamedashifm.app.n8n.cloud/webhook/send-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
+      if (!response.ok) {
+        const errorText = await response.text();
+        return res.status(response.status).json({ error: errorText });
+      }
 
-    const result = await response.text();
-
-    if (!response.ok) {
-      return res.status(response.status).json({ error: result });
+      const result = await response.json();
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json({ error: "Server error: " + error.message });
     }
-
-    return res.status(200).json({ message: 'Email sent', result });
-  } catch (error) {
-    console.error('Error forwarding to n8n:', error);
-    return res.status(500).json({ error: 'Failed to send email' });
+  } else {
+    res.setHeader("Allow", ["POST"]);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
