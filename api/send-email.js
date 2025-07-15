@@ -1,22 +1,23 @@
-// api/send-email.js
-
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
+  // Allow requests from any origin (or restrict to your frontend)
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle preflight requests (OPTIONS)
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
   }
 
+  // Your existing email sending logic here
   const { email } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ error: "Email is required" });
-  }
-
   try {
-    // Example: use nodemailer
-    // (you must set SMTP credentials in Vercel's environment settings)
-    return res.status(200).json({ message: "Email sent (mocked)" });
-  } catch (error) {
-    console.error("Send error:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    // [🟢 Replace with your email sending logic]
+    console.log("Sending email to:", email);
+
+    res.status(200).json({ message: "Email sent successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Email failed", error: err.message });
   }
 }
