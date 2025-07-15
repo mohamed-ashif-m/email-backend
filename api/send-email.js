@@ -1,5 +1,18 @@
-const sendEmail = async (email) => {
+export default async function handler(req, res) {
+  // Enable CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle preflight request
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   try {
+    const { email } = req.body;
+
+    // If using n8n webhook, POST the email to it
     const response = await fetch("https://mohamedashifm.app.n8n.cloud/webhook/send-email", {
       method: "POST",
       headers: {
@@ -9,16 +22,12 @@ const sendEmail = async (email) => {
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error("Failed to send: " + errText);
+      throw new Error("Failed to trigger webhook");
     }
 
-    const result = await response.json(); // optional
-    console.log("📧 Email Response:", result);
-
-    alert("✅ Email sent successfully!");
+    res.status(200).json({ success: true });
   } catch (error) {
-    console.error("❌ Error sending email:", error);
-    alert("❌ Failed to send email.");
+    console.error("Error sending email:", error);
+    res.status(500).json({ error: "Email failed" });
   }
-};
+}
